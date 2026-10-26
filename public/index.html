@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Бронь без конфликтов</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">К содержимому</a>
+
+  <section id="view-auth" class="view">
+    <div class="auth-card">
+      <h1>Бронь без конфликтов</h1>
+      <p class="lead">Бронирование переговорных комнат. Время — московское (MSK, UTC+3).</p>
+
+      <div class="tabs" role="tablist">
+        <button type="button" id="tab-login" class="tab is-active" aria-selected="true">Вход</button>
+        <button type="button" id="tab-register" class="tab" aria-selected="false">Регистрация</button>
+      </div>
+
+      <p id="auth-message" class="banner" hidden role="alert"></p>
+
+      <form id="form-login" autocomplete="on">
+        <label for="login-login">Логин</label>
+        <input id="login-login" name="login" type="text" required minlength="3" maxlength="64">
+
+        <label for="login-password">Пароль</label>
+        <input id="login-password" name="password" type="password" required minlength="8">
+
+        <button type="submit" id="btn-login" class="btn-primary">Войти</button>
+      </form>
+
+      <form id="form-register" hidden autocomplete="on">
+        <label for="reg-name">Имя</label>
+        <input id="reg-name" name="name" type="text" required minlength="2" maxlength="100">
+
+        <label for="reg-login">Логин</label>
+        <input id="reg-login" name="login" type="text" required minlength="3" maxlength="64">
+
+        <label for="reg-password">Пароль</label>
+        <input id="reg-password" name="password" type="password" required minlength="8">
+
+        <button type="submit" id="btn-register" class="btn-primary">Создать учётную запись</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="view-app" class="view" hidden>
+    <header class="topbar">
+      <div>
+        <strong>Бронь без конфликтов</strong>
+        <span id="user-label" class="muted"></span>
+      </div>
+      <button type="button" id="btn-logout" class="btn-ghost">Выйти</button>
+    </header>
+
+    <nav class="tabs app-tabs" aria-label="Разделы">
+      <button type="button" id="nav-catalog" class="tab is-active">Каталог</button>
+      <button type="button" id="nav-mine" class="tab">Мои бронирования</button>
+      <button type="button" id="nav-admin" class="tab" hidden>Администрирование</button>
+    </nav>
+
+    <main id="main">
+      <section id="panel-catalog">
+        <h2>Переговорные</h2>
+        <label for="search">Поиск по названию</label>
+        <input id="search" type="search" placeholder="Например, Север">
+
+        <p id="catalog-status" class="status" aria-live="polite"></p>
+        <ul id="resource-list" class="card-list"></ul>
+      </section>
+
+      <section id="panel-resource" hidden>
+        <button type="button" id="btn-back" class="btn-ghost">← К каталогу</button>
+        <h2 id="resource-title"></h2>
+        <p id="resource-meta" class="muted"></p>
+        <p class="hint">Все интервалы указаны по московскому времени.</p>
+
+        <label for="avail-date">Дата</label>
+        <input id="avail-date" type="date" required>
+
+        <p id="avail-status" class="status" aria-live="polite"></p>
+        <ul id="interval-list" class="interval-list"></ul>
+
+        <form id="form-booking">
+          <h3>Новое бронирование</h3>
+          <p id="booking-message" class="banner" hidden role="alert"></p>
+
+          <label for="book-start">Начало (MSK)</label>
+          <select id="book-start" required></select>
+
+          <label for="book-end">Окончание (MSK)</label>
+          <select id="book-end" required></select>
+
+          <label for="book-purpose">Цель (от 5 до 300 символов)</label>
+          <textarea id="book-purpose" required minlength="5" maxlength="300" rows="3"></textarea>
+          <p id="purpose-count" class="muted">0 / 300</p>
+
+          <button type="submit" id="btn-book" class="btn-primary">Забронировать</button>
+        </form>
+      </section>
+
+      <section id="panel-mine" hidden>
+        <h2>Мои бронирования</h2>
+        <label for="mine-filter">Фильтр статуса</label>
+        <select id="mine-filter">
+          <option value="all">Все</option>
+          <option value="Активно">Активно</option>
+          <option value="Отменено">Отменено</option>
+        </select>
+        <p id="mine-status" class="status" aria-live="polite"></p>
+        <ul id="mine-list" class="card-list"></ul>
+      </section>
+
+      <div id="admin-panel" style="display:none;">
+        <h2>Панель администратора</h2>
+        <p class="hint">Владельцы и цели записей видны только администратору. Время — московское.</p>
+
+        <div class="tabs" role="tablist">
+          <button type="button" id="admin-tab-bookings" class="tab is-active">Все бронирования</button>
+          <button type="button" id="admin-tab-audit" class="tab">Логи аудита</button>
+        </div>
+
+        <section id="admin-bookings">
+          <p id="admin-bookings-status" class="status" aria-live="polite"></p>
+          <ul id="admin-bookings-list" class="card-list"></ul>
+        </section>
+
+        <section id="admin-audit" hidden>
+          <p id="admin-audit-status" class="status" aria-live="polite"></p>
+          <div style="overflow-x:auto;">
+            <table id="admin-audit-table">
+              <thead>
+                <tr>
+                  <th>Время</th>
+                  <th>Исполнитель</th>
+                  <th>Действие</th>
+                  <th>Объект</th>
+                  <th>Результат</th>
+                  <th>traceId</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
