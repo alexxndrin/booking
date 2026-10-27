@@ -62,7 +62,7 @@ async function getAvailability(req, res) {
     return sendError(res, 400, 'VALIDATION_ERROR', 'Укажите дату в формате YYYY-MM-DD.');
   }
 
-  const isAdmin = req.user.role === 'администратор';
+const isAdmin = req.user && req.user.role === 'администратор';
 
   try {
     const resource = await pool.query(
@@ -133,7 +133,41 @@ async function getAvailability(req, res) {
   }
 }
 
+async function getResourceById(req, res) {
+  const { id } = req.params;
+
+  if (!UUID_RE.test(id)) {
+    return sendError(res, 400, 'VALIDATION_ERROR', 'Некорректный идентификатор ресурса.');
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT id, name, description, location, is_active
+       FROM resources
+       WHERE id = $1`,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return sendError(res, 404, 'NOT_FOUND', 'Ресурс не найден.');
+    }
+
+    // Возвращаем один объект ресурса
+    return res.json(result.rows[0]); 
+  } catch (err) {
+    const traceId = crypto.randomUUID();
+    console.error(traceId, err.message);
+    return res.status(500).json({
+      code: 'INTERNAL_ERROR',
+      message: 'Внутренняя ошибка сервера.',
+      traceId,
+    });
+  }
+}
+
+// ОБНОВЛЕННЫЙ ЭКСПОРТ (в самом низу)
 module.exports = {
   listResources,
+  getResourceById, // добавили
   getAvailability,
 };

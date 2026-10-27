@@ -3,7 +3,6 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 const { Pool } = require('pg');
 
-// Пул соединений: параметры берутся из .env
 const pool = new Pool({
   user: process.env.PGUSER,
   password: process.env.PGPASSWORD,

@@ -18,12 +18,11 @@ app.use(express.json());
 // Раздача фронтенда из папки public
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Процесс жив: без обращения к БД
+
 app.get('/health/live', (req, res) => {
   res.status(200).json({ status: 'UP' });
 });
 
-// Готовность обслуживать запросы: проверяем доступность PostgreSQL
 app.get('/health/ready', async (req, res) => {
   try {
     await pool.query('SELECT 1');
